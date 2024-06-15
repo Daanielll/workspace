@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int            @id @default(autoincrement())
+  username          String
+  email             String         @unique
+  password          String
+  color             String         @default("#000000")
+  displayPreference PreferenceType @default(KANBAN)
+
+  orgs          Org[]      @relation("OrgUsers")
+  orgUsers      OrgUsers[]
+  tasksCreated  Task[]     @relation("TaskCreator")
+  tasksAssigned Task[]     @relation("TaskAssigned")
+}
+
+model Org {
+  id       Int        @id @default(autoincrement())
+  name     String
+  users    User[]     @relation("OrgUsers")
+  orgUsers OrgUsers[]
+  teams    Team[]
+  roles    Role[]
+}
+
+model OrgUsers {
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org    Org  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  userId Int
+  orgId  Int
+  roleId Int
+
+  @@id([userId, roleId, orgId])
+}
+
+model Team {
+  id           Int            @id @default(autoincrement())
+  name         String
+  orgId        Int
+  org          Org            @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  columns      Column[]
+  tags         Tag[]
+  allowedRoles AllowedRoles[]
+}
+
+model Column {
+  id     Int    @id @default(autoincrement())
+  name   String
+  order  Int
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId Int
+  Task   Task[]
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  priority    Priority  @default(ROUTINE)
+  column      Column    @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  creator     User?     @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  assignedTo  User?     @relation("TaskAssigned", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  columnId     Int
+  creatorId    Int?
+  assignedToId Int?
+  taskTags     TaskTag[]
+  activity     Activity[]
+}
+
+model Tag {
+  id      Int       @id @default(autoincrement())
+  name    String
+  color   String    @default("grey")
+  team    Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId  Int
+  taskTag TaskTag[]
+}
+
+model TaskTag {
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  taskId Int
+  tagId  Int
+
+  @@id([taskId, tagId])
+}
+
+model Activity {
+  id        Int          @id @default(autoincrement())
+  content   String
+  createdAt DateTime     @default(now())
+  task      Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  type      ActivityType @default(ACTIVITY)
+  taskId    Int
+}
+
+model Role {
+  id           Int            @id @default(autoincrement())
+  name         String
+  org          Org            @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId        Int
+  allowedRoles AllowedRoles[]
+  orgUsers     OrgUsers[]
+}
+
+model AllowedRoles {
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  roleId Int
+  teamId Int
+
+  @@id([roleId, teamId])
+}
+
+enum Priority {
+  ROUTINE
+  IMPORTANT
+  URGENT
+}
+
+enum ActivityType {
+  COMMENT
+  ACTIVITY
+}
+
+enum PreferenceType {
+  KANBAN
+  TABLE
+}
