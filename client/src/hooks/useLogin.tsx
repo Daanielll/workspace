@@ -9,10 +9,14 @@ interface LoginVars {
 export default function useLogin() {
   const { mutateAsync } = useMutation({
     mutationFn: async ({ email, password }: LoginVars) => {
-      const response = await axios.post("http://localhost:3000/users/login", {
-        email: email,
-        password: password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/users/login",
+        {
+          email: email,
+          password: password,
+        },
+        { withCredentials: true }
+      );
       console.log(response);
       return response.data;
     },
