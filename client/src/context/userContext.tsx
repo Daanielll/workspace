@@ -11,8 +11,15 @@ interface User {
 interface UserContextProviderProps {
   children: ReactNode;
 }
+interface UserContextType {
+  user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+}
 
-export const UserContext = createContext<User | object>({});
+export const UserContext = createContext<UserContextType>({
+  user: null,
+  setUser: () => {},
+});
 
 export function UserContextProvider({ children }: UserContextProviderProps) {
   const [user, setUser] = useState<User | null>(null);

@@ -19,5 +19,6 @@ app.use(cookieParser());
 app.use("/", require("./routes/root"));
 app.use("/org", require("./routes/orgRoutes"));
 app.use("/users", require("./routes/userRoutes"));
+app.use("/teams", require("./routes/teamRoutes"));
 
 app.listen(3000, () => console.log("Server running on port 3000"));

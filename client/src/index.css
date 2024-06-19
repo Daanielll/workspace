@@ -1,3 +1,30 @@
+/* import dm sans */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+  font-family: "DM Sans", Arial, Helvetica, sans-serif;
+}
+
+.background-gradient {
+  background: linear-gradient(
+    130deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+}
+.rounded-edge::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 10px;
+  width: 0.5rem;
+  height: 20px;
+  background-color: #131416;
+  border-top: 1px solid #d1d9e6;
+}
+body {
+  background-color: #101112;
+}
