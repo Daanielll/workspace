@@ -1,6 +1,5 @@
 import { useState } from "react";
 import useOrgsAndTeams from "../../hooks/useOrgsAndTeams";
-import settings_icon from "../../assets/settings_icon.svg";
 import plus_icon from "../../assets/plus_icon.svg";
 import { GlobeIcon } from "../../assets/GlobeIcon";
 import { SettingsIcon } from "../../assets/SettingsIcon";

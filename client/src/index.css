@@ -26,5 +26,5 @@
   border-top: 1px solid #d1d9e6;
 }
 body {
-  background-color: #101112;
+  @apply bg-dark;
 }
