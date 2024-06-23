@@ -15,6 +15,7 @@
     rgba(255, 255, 255, 0.05)
   );
 }
+
 .rounded-edge::before {
   content: "";
   position: absolute;
@@ -22,9 +23,33 @@
   top: 10px;
   width: 0.5rem;
   height: 20px;
-  background-color: #131416;
   border-top: 1px solid #d1d9e6;
+  border-left: 2px solid #121416;
 }
 body {
   @apply bg-dark;
+}
+
+/* Style the scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+/* Track */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2c2c2c;
+  border-radius: 10px;
+}
+
+/* Handle */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 10px;
+  border: 3px solid #2c2c2c;
+}
+
+/* Handle on hover */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }

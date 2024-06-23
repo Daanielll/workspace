@@ -3,6 +3,7 @@ import useOrgsAndTeams from "../../hooks/useOrgsAndTeams";
 import plus_icon from "../../assets/plus_icon.svg";
 import { GlobeIcon } from "../../assets/GlobeIcon";
 import { SettingsIcon } from "../../assets/SettingsIcon";
+import { motion, AnimatePresence } from "framer-motion";
 // team interface
 interface Team {
   id: number;
@@ -36,49 +37,54 @@ export function Organizations() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {orgs.map((org) => (
-          <div
-            style={{
-              height: `${
-                selectedOrg == org.id
-                  ? Number(3.75 + org.teams?.length * 2.25)
-                  : 1.5
-              }rem`,
-            }}
-            className="transition-all duration-200 flex flex-col gap-4 child:cursor-pointer ease-out overflow-hidden"
-            key={org.id}
-          >
-            <button
-              onClick={() =>
-                setSelectedOrg(selectedOrg == org.id ? null : org.id)
-              }
-              className="flex gap-3 items-center hover:text-washed-blue-700 duration-200"
+        {orgs.map((org) => {
+          const isOpen = selectedOrg === org.id;
+          const dynamicHeight = isOpen
+            ? 1.25 + (org.teams ? org.teams.length * 2.25 : 0)
+            : 0;
+
+          return (
+            <div
+              className="flex flex-col gap-4 child:cursor-pointer overflow-hidden"
               key={org.id}
             >
-              <GlobeIcon />
-              {org.name}
-            </button>
-            {selectedOrg === org.id && (
-              <div className="flex flex-col gap-3 child:pl-6 border-l border-washed-blue ml-[10px] items-start">
-                {org.teams?.map((team) => (
-                  <button
-                    className={`${
-                      selectedTeam == team.id ? "text-primary-blue" : ""
-                    } hover:text-washed-blue-700`}
-                    onClick={() => setSelectedTeam(team.id)}
-                    key={team.id}
+              <button
+                onClick={() => setSelectedOrg(isOpen ? null : org.id)}
+                className="flex gap-3 items-center hover:text-washed-blue-700 duration-200"
+              >
+                <GlobeIcon />
+                {org.name}
+              </button>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${dynamicHeight}rem` }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: 0.15, ease: "linear" }}
+                    className="flex flex-col gap-3 child:pl-6 border-l border-washed-blue ml-[10px] items-start"
                   >
-                    {team.name}
-                  </button>
-                ))}
-                <button className="text-washed-blue-700 text-sm flex gap-1 relative rounded-edge hover:text-washed-blue-800 items-center">
-                  <SettingsIcon />
-                  Organization Settings
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+                    {org.teams?.map((team) => (
+                      <button
+                        className={`${
+                          selectedTeam === team.id ? "text-primary-blue" : ""
+                        } hover:text-washed-blue-700`}
+                        onClick={() => setSelectedTeam(team.id)}
+                        key={team.id}
+                      >
+                        {team.name}
+                      </button>
+                    ))}
+                    <button className="text-washed-blue-700 text-sm flex gap-1 relative rounded-edge hover:text-washed-blue-800 items-center">
+                      <SettingsIcon />
+                      Organization Settings
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
