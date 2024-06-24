@@ -5,7 +5,7 @@ export default function useOrgsAndTeams() {
   return useQuery({
     queryKey: ["userOrgsAndGroups"],
     queryFn: async () => {
-      const { data } = await axios.get("http://localhost:3000/org", {
+      const { data } = await axios.get("http://localhost:3000/orgs", {
         withCredentials: true,
       });
       return data;

@@ -25,6 +25,8 @@ model User {
   orgUsers      OrgUsers[]
   tasksCreated  Task[]     @relation("TaskCreator")
   tasksAssigned Task[]     @relation("TaskAssigned")
+  requests      Request[]
+  invites       Invite[]
 }
 
 model Org {
@@ -34,6 +36,8 @@ model Org {
   orgUsers OrgUsers[]
   teams    Team[]
   roles    Role[]
+  requests Request[]
+  invites  Invite[]
 }
 
 model OrgUsers {
@@ -128,6 +132,26 @@ model AllowedRoles {
   teamId Int
 
   @@id([roleId, teamId])
+}
+
+model Request {
+  user      User     @relation(fields: [userId], references: [id])
+  org       Org      @relation(fields: [orgId], references: [id])
+  userId    Int
+  orgId     Int
+  createdAt DateTime @default(now())
+
+  @@id([userId, orgId])
+}
+
+model Invite {
+  user      User     @relation(fields: [userId], references: [id])
+  org       Org      @relation(fields: [orgId], references: [id])
+  userId    Int
+  orgId     Int
+  createdAt DateTime @default(now())
+
+  @@id([userId, orgId])
 }
 
 enum Priority {

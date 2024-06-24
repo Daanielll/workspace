@@ -5,7 +5,7 @@ import { UserContext } from "../../context/userContext";
 import { HomeIcon } from "../../assets/HomeIcon";
 import { ActivityIcon } from "../../assets/ActivityIcon";
 import { ClockIcon } from "../../assets/ClockIcon";
-export function Sidebar() {
+export function Sidebar({ handleOpenForm }) {
   // get user from context
   const { user } = useContext(UserContext);
 
@@ -26,7 +26,7 @@ export function Sidebar() {
               <ClockIcon /> Upcoming
             </button>
           </div>
-          <Organizations></Organizations>
+          <Organizations handleOpenForm={handleOpenForm}></Organizations>
         </div>
         <div className="w-full px-2 py-3 align-self background-gradient border-2 border-white border-opacity-20 flex gap-3 rounded-md items-center justify-start">
           <div

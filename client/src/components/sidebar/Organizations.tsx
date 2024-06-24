@@ -16,7 +16,7 @@ interface Org {
   name: string;
   teams: Team[];
 }
-export function Organizations() {
+export function Organizations({ handleOpenForm }) {
   const [selectedOrg, setSelectedOrg] = useState<number | null>();
   const [selectedTeam, setSelectedTeam] = useState<number | null>();
   const orgAndTeams = useOrgsAndTeams();
@@ -33,6 +33,7 @@ export function Organizations() {
           className="opacity-0 group-hover:opacity-100 cursor-pointer p-1"
           src={plus_icon}
           alt="Plus icon"
+          onClick={handleOpenForm}
         />
       </div>
 

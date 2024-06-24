@@ -17,7 +17,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 app.use("/", require("./routes/root"));
-app.use("/org", require("./routes/orgRoutes"));
+app.use("/orgs", require("./routes/orgRoutes"));
 app.use("/users", require("./routes/userRoutes"));
 app.use("/teams", require("./routes/teamRoutes"));
 

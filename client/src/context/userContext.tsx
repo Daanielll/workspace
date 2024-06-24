@@ -25,6 +25,7 @@ export function UserContextProvider({ children }: UserContextProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     if (!user) {
+      console.log("Fetching user data..");
       axios
         .get("http://localhost:3000/users/me", { withCredentials: true })
         .then(({ data }) => {
