@@ -135,8 +135,8 @@ model AllowedRoles {
 }
 
 model Request {
-  user      User     @relation(fields: [userId], references: [id])
-  org       Org      @relation(fields: [orgId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
   userId    Int
   orgId     Int
   createdAt DateTime @default(now())
@@ -145,8 +145,8 @@ model Request {
 }
 
 model Invite {
-  user      User     @relation(fields: [userId], references: [id])
-  org       Org      @relation(fields: [orgId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
   userId    Int
   orgId     Int
   createdAt DateTime @default(now())
