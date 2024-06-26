@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="bg-dark flex">
       <Sidebar handleOpenForm={() => setFormOpen(true)}></Sidebar>
-      <div className="flex-1 relative">
+      <div className={"flex-1 relative"}>
         <AnimatePresence>
           {formOpen && <NewOrgForm handleClose={() => setFormOpen(false)} />}
         </AnimatePresence>

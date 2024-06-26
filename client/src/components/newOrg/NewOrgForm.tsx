@@ -3,9 +3,17 @@ import useNewOrg from "../../hooks/useNewOrg";
 import { useState } from "react";
 import x_icon from "../../assets/x_icon.svg";
 import { Backdrop } from "./Backdrop";
-export function NewOrgForm({ handleClose }) {
+import useOrgRequest from "../../hooks/useOrgRequest";
+
+type Props = {
+  handleClose: () => void;
+};
+
+export function NewOrgForm({ handleClose }: Props) {
   const newOrg = useNewOrg();
   const [orgName, setOrgName] = useState("");
+  const [orgId, setOrgId] = useState("");
+  const createRequest = useOrgRequest();
   const invitations = [
     {
       id: 1,
@@ -34,7 +42,7 @@ export function NewOrgForm({ handleClose }) {
           stiffness: 260,
           damping: 20,
         }}
-        className="w-[clamp(500px,33%,800px)] flex flex-col text-washed-blue p-4 gap-4 bg-lighter-dark border-2 border-primary-grey border-opacity-20 rounded-lg absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+        className="w-[clamp(500px,33%,800px)] flex flex-col text-washed-blue p-4 gap-4 bg-lighter-dark border-2 border-primary-grey border-opacity-20 rounded-lg absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <h1 className="text-lg font-semibold flex justify-between items-center">
@@ -75,7 +83,15 @@ export function NewOrgForm({ handleClose }) {
         </form>
         <h5 className="mt-2 text-sm">Or join an existing one</h5>
         <div className="border border-primary-grey border-opacity-20 rounded-lg mx-2 -mt-2 p-3">
-          <form className="flex gap-2 items-end text-sm " action="">
+          <form
+            className="flex gap-2 items-end text-sm "
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (Number(orgId) > 0) {
+                createRequest(Number(orgId));
+              }
+            }}
+          >
             <div className="flex flex-col gap-2 flex-1">
               <label htmlFor="orgName">Add with organization ID</label>
               <input
@@ -84,6 +100,8 @@ export function NewOrgForm({ handleClose }) {
                 id=""
                 placeholder="Enter organization ID..."
                 className="bg-primary-grey bg-opacity-20 p-2 px-3 rounded-md outline-none"
+                value={orgId}
+                onChange={(e) => setOrgId(e.target.value)}
               />
             </div>
             <button

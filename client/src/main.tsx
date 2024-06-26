@@ -8,6 +8,8 @@ import Login from "./components/login/Login.js";
 import ConditionalRender from "./components/ConditionalRender.js";
 import { UserContextProvider } from "./context/userContext.js";
 
+const queryClient = new QueryClient();
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -22,7 +24,6 @@ const router = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>

@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 export default function useNewOrg() {
+  const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: async (orgName: string) => {
       const response = await axios.post(
@@ -13,6 +14,12 @@ export default function useNewOrg() {
       );
 
       return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["userOrgsAndGroups"] });
+    },
+    onError: (error) => {
+      console.log(error);
     },
   });
   return mutateAsync;

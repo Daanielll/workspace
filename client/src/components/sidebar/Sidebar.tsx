@@ -5,7 +5,11 @@ import { UserContext } from "../../context/userContext";
 import { HomeIcon } from "../../assets/HomeIcon";
 import { ActivityIcon } from "../../assets/ActivityIcon";
 import { ClockIcon } from "../../assets/ClockIcon";
-export function Sidebar({ handleOpenForm }) {
+
+type Props = {
+  handleOpenForm: () => void;
+};
+export function Sidebar({ handleOpenForm }: Props) {
   // get user from context
   const { user } = useContext(UserContext);
 
@@ -15,7 +19,7 @@ export function Sidebar({ handleOpenForm }) {
       <div className=" h-[1px] bg-primary-grey bg-opacity-20 my-6 -mx-5 "></div>
       <div className="flex flex-col flex-grow justify-between">
         <div className="flex flex-col gap-9">
-          <div className="flex flex-col gap-4 child:flex child:gap-3 text-washed-blue child:hover:cursor-pointer child:items-center">
+          <div className="flex flex-col gap-4 child:flex child:gap-3 text-washed-blue child:hover:cursor-pointer child:items-center child:duration-150">
             <button className="hover:text-washed-blue-700">
               <HomeIcon /> Home
             </button>

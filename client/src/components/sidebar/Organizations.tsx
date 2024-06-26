@@ -16,7 +16,10 @@ interface Org {
   name: string;
   teams: Team[];
 }
-export function Organizations({ handleOpenForm }) {
+type Props = {
+  handleOpenForm: () => void;
+};
+export function Organizations({ handleOpenForm }: Props) {
   const [selectedOrg, setSelectedOrg] = useState<number | null>();
   const [selectedTeam, setSelectedTeam] = useState<number | null>();
   const orgAndTeams = useOrgsAndTeams();
@@ -51,7 +54,7 @@ export function Organizations({ handleOpenForm }) {
             >
               <button
                 onClick={() => setSelectedOrg(isOpen ? null : org.id)}
-                className="flex gap-3 items-center hover:text-washed-blue-700 duration-200"
+                className="flex gap-3 items-center hover:text-washed-blue-700 duration-150"
               >
                 <GlobeIcon />
                 {org.name}
@@ -69,14 +72,14 @@ export function Organizations({ handleOpenForm }) {
                       <button
                         className={`${
                           selectedTeam === team.id ? "text-primary-blue" : ""
-                        } hover:text-washed-blue-700`}
+                        } hover:text-washed-blue-700 duration-150`}
                         onClick={() => setSelectedTeam(team.id)}
                         key={team.id}
                       >
                         {team.name}
                       </button>
                     ))}
-                    <button className="text-washed-blue-700 text-sm flex gap-1 relative rounded-edge hover:text-washed-blue-800 items-center">
+                    <button className="text-washed-blue-700 text-sm flex gap-1 relative rounded-edge hover:text-washed-blue-800 items-center duration-150">
                       <SettingsIcon />
                       Organization Settings
                     </button>

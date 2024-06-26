@@ -69,7 +69,50 @@ const getUserOrgs = async (req, res) => {
   }
 };
 
+const createOrgRequest = async (req, res) => {
+  const userId = req.user.id;
+  const { orgId } = req.body;
+  if (!userId) return res.status(400).json({ error: "Internal server error" });
+  if (!orgId)
+    return res.status(400).json({ error: "Organization ID is required" });
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { orgUsers: true },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const org = await prisma.org.findUnique({ where: { id: orgId } });
+    if (!org) return res.status(404).json({ error: "Organization not found" });
+
+    // check if already in org
+    const inOrg = user.orgUsers.some((org) => org.orgId == orgId);
+    if (inOrg)
+      return res
+        .status(409)
+        .json({ error: "User is already in the organization" });
+
+    // otherwise create request
+    const result = await prisma.request.create({
+      data: {
+        userId: user.id,
+        orgId: org.id,
+      },
+    });
+    res.status(201).json({
+      message: "Request created successfully",
+      org: result.org,
+      user: result.user,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   createOrg,
   getUserOrgs,
+  createOrgRequest,
 };
