@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { toast } from "sonner";
 
 export default function useOrgRequest() {
   const { mutateAsync } = useMutation({
@@ -14,8 +15,16 @@ export default function useOrgRequest() {
 
       return response.data;
     },
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: () => {
+      toast.success("A request to join the organization has been sent");
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        return toast.error(
+          error.response?.data.error || "An unknown error has occurred",
+          { richColors: true }
+        );
+      }
     },
   });
   return mutateAsync;

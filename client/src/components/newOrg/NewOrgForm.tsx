@@ -4,6 +4,7 @@ import { useState } from "react";
 import x_icon from "../../assets/x_icon.svg";
 import { Backdrop } from "./Backdrop";
 import useOrgRequest from "../../hooks/useOrgRequest";
+import { useOrgsInvite, useInviteResponse } from "../../hooks/useOrgInvite";
 
 type Props = {
   handleClose: () => void;
@@ -14,23 +15,12 @@ export function NewOrgForm({ handleClose }: Props) {
   const [orgName, setOrgName] = useState("");
   const [orgId, setOrgId] = useState("");
   const createRequest = useOrgRequest();
-  const invitations = [
-    {
-      id: 1,
-      orgName: "Yotaniel",
-      invitedBy: "Daniel Moshe",
-    },
-    {
-      id: 2,
-      orgName: "Yotaniel",
-      invitedBy: "Daniel Moshe",
-    },
-    {
-      id: 3,
-      orgName: "Yotaniel",
-      invitedBy: "Daniel Moshe",
-    },
-  ];
+  const inviteResponse = useInviteResponse();
+  const userInvites = useOrgsInvite();
+  userInvites.isFetched
+    ? console.log(userInvites.data)
+    : console.log("Fetching user invites");
+
   return (
     <Backdrop onClick={handleClose}>
       <motion.div
@@ -59,7 +49,9 @@ export function NewOrgForm({ handleClose }: Props) {
           className="flex gap-2 items-end text-sm"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log(newOrg(orgName));
+            newOrg(orgName);
+            setOrgName("");
+            handleClose();
           }}
         >
           <div className="flex flex-col gap-2 flex-1">
@@ -89,6 +81,7 @@ export function NewOrgForm({ handleClose }: Props) {
               e.preventDefault();
               if (Number(orgId) > 0) {
                 createRequest(Number(orgId));
+                setOrgId("");
               }
             }}
           >
@@ -113,23 +106,36 @@ export function NewOrgForm({ handleClose }: Props) {
           </form>
           <h5 className="mt-4 mb-2 text-sm">Pending invitations</h5>
           <div className="flex flex-col gap-2 max-h-[18.5rem] overflow-auto custom-scrollbar">
-            {invitations.map((inv) => (
-              <div
-                key={inv.id}
-                className="flex justify-between items-center bg-primary-grey bg-opacity-20 rounded-md p-2 px-4"
-              >
-                <div>
-                  <h1 className="font-medium">{inv.orgName}</h1>
-                  <h2 className="text-washed-blue-700">
-                    Invited by {inv.invitedBy}
-                  </h2>
-                </div>
+            {userInvites.isFetched &&
+            userInvites.data &&
+            userInvites.data[0] ? (
+              userInvites.data?.map((inv) => (
+                <div
+                  key={inv.org.id}
+                  className="flex justify-between items-center bg-primary-grey bg-opacity-20 rounded-md p-2 px-4"
+                >
+                  <div>
+                    <h1 className="font-medium">{inv.org.name}</h1>
+                    <h2 className="text-washed-blue-700">
+                      Invited by {inv.invitedBy.username}
+                    </h2>
+                  </div>
 
-                <button className="p-2 px-6 h-fit border box-border border-washed-blue rounded-md text-sm">
-                  Join
-                </button>
-              </div>
-            ))}
+                  <button
+                    onClick={() => {
+                      inviteResponse({ orgId: inv.org.id, userResponse: 1 });
+                    }}
+                    className="p-2 px-6 h-fit border box-border border-washed-blue rounded-md text-sm"
+                  >
+                    Join
+                  </button>
+                </div>
+              ))
+            ) : (
+              <h1 className="text-washed-blue-700 text-sm">
+                There are no pending invitations
+              </h1>
+            )}
           </div>
         </div>
       </motion.div>

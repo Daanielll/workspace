@@ -15,5 +15,9 @@ router
     res.json(req.user);
   });
 router.route("/me").get(authController.getUser);
+router
+  .route("/invites")
+  .get(authToken, userController.getUserInvites)
+  .post(authToken, userController.respondToInvite);
 
 module.exports = router;

@@ -10,7 +10,7 @@ router
   .post(authToken, orgController.createOrg)
   .get(authToken, getUserOrgsAndTeams);
 router.route("/request").post(authToken, orgController.createOrgRequest);
-router.route("/request/:orgId").post(authToken, orgController.createOrgInvite);
+router.route("/invite/:orgId").post(authToken, orgController.createOrgInvite);
 router.route("/:orgId").post(authToken, teamController.createTeam);
 
 module.exports = router;

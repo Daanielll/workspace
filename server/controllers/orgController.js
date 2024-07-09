@@ -6,7 +6,7 @@ const createOrg = async (req, res) => {
   const userId = req.user.id;
   const { orgName } = req.body;
 
-  if (!userId) return res.status(400).json({ error: "Internal server error" });
+  if (!userId) return res.status(500).json({ error: "Internal server error" });
   if (!orgName)
     return res.status(400).json({ error: "Organization name is required" });
 
@@ -21,29 +21,43 @@ const createOrg = async (req, res) => {
         },
       });
 
-      const role = await tx.role.create({
-        data: {
-          name: "Admin",
-          orgId: org.id,
-        },
+      await tx.role.createMany({
+        data: [
+          {
+            name: "Admin",
+            orgId: org.id,
+          },
+          {
+            name: "Member",
+            orgId: org.id,
+          },
+        ],
+      });
+      const roles = await tx.role.findMany({
+        where: { orgId: org.id },
       });
 
-      const orgUsers = await tx.orgUsers.create({
-        data: {
-          userId: user.id,
-          orgId: org.id,
-          roleId: role.id,
-        },
+      await tx.orgUsers.createMany({
+        data: [
+          {
+            userId: user.id,
+            orgId: org.id,
+            roleId: roles[0].id,
+          },
+          {
+            userId: user.id,
+            orgId: org.id,
+            roleId: roles[1].id,
+          },
+        ],
       });
 
-      return { org, role, orgUsers };
+      return { org };
     });
 
     res.status(201).json({
       message: "Organization created successfully",
       org: result.org,
-      role: result.role,
-      orgUsers: result.orgUsers,
     });
   } catch (e) {
     console.error(e);
@@ -72,7 +86,7 @@ const getUserOrgs = async (req, res) => {
 const createOrgRequest = async (req, res) => {
   const userId = req.user.id;
   const { orgId } = req.body;
-  if (!userId) return res.status(400).json({ error: "Internal server error" });
+  if (!userId) return res.status(500).json({ error: "Internal server error" });
   if (!orgId)
     return res.status(400).json({ error: "Organization ID is required" });
 
@@ -85,14 +99,15 @@ const createOrgRequest = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const org = await prisma.org.findUnique({ where: { id: orgId } });
-    if (!org) return res.status(404).json({ error: "Organization not found" });
+    if (!org)
+      return res.status(404).json({ error: "Could not find the organization" });
 
     // check if already in org
     const inOrg = user.orgUsers.some((org) => org.orgId == orgId);
     if (inOrg)
       return res
         .status(409)
-        .json({ error: "User is already in the organization" });
+        .json({ error: "You are already in the organization" });
 
     // Check if there is already a request
     const existingRequest = await prisma.request.findUnique({
@@ -104,11 +119,9 @@ const createOrgRequest = async (req, res) => {
       },
     });
     if (existingRequest)
-      return res
-        .status(409)
-        .json({
-          error: "User has already requested to join this organization",
-        });
+      return res.status(409).json({
+        error: "User has already requested to join this organization",
+      });
 
     // otherwise create request
     const result = await prisma.request.create({
@@ -130,6 +143,9 @@ const createOrgRequest = async (req, res) => {
 const createOrgInvite = async (req, res) => {
   let { orgId } = req.params;
   const { userId } = req.body;
+  const inviterId = req.user.id;
+
+  if (!userId) return res.status(400).json({ error: "Missing invited user" });
   orgId = Number(orgId);
 
   if (!userId) return res.status(400).json({ error: "UserId is required" });
@@ -137,15 +153,35 @@ const createOrgInvite = async (req, res) => {
     return res.status(400).json({ error: "Organization ID is required" });
 
   try {
+    const inviterUser = await prisma.user.findUnique({
+      where: { id: inviterId },
+      select: {
+        username: true,
+        orgUsers: {
+          select: { role: { select: { name: true } } },
+          where: { orgId: orgId },
+        },
+      },
+    });
+    if (!inviterUser) return res.status(404).json({ error: "user not found" });
+    const hasAdminRole = inviterUser.orgUsers.some(
+      (orgUser) => orgUser.role.name === "Admin"
+    );
+    if (!hasAdminRole)
+      return res
+        .status(403)
+        .json({ error: "User does not have permission to invite" });
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      select: { id: true },
     });
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const org = await prisma.org.findUnique({
       where: { id: orgId },
-      include: { orgUsers: true },
+      select: { orgUsers: true },
     });
     if (!org) return res.status(404).json({ error: "Organization not found" });
 
@@ -160,8 +196,8 @@ const createOrgInvite = async (req, res) => {
     const existingInvite = await prisma.invite.findUnique({
       where: {
         userId_orgId: {
-          userId: user.id,
-          orgId: org.id,
+          userId: userId,
+          orgId: orgId,
         },
       },
     });
@@ -174,14 +210,14 @@ const createOrgInvite = async (req, res) => {
     // otherwise create request
     const result = await prisma.invite.create({
       data: {
-        userId: user.id,
-        orgId: org.id,
+        userId: userId,
+        orgId: orgId,
+        invitedById: inviterId,
       },
     });
     res.status(201).json({
       message: "Invite created successfully",
-      org: result.org,
-      user: result.user,
+      result,
     });
   } catch (e) {
     console.error(e);

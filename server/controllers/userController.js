@@ -61,8 +61,104 @@ const getUserOrgsAndTeams = async (req, res) => {
   }
 };
 
+const getUserInvites = async (req, res) => {
+  const userId = req.user.id;
+  if (!userId) return res.status(500).json({ error: "Internal server error" });
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const invites = await prisma.invite.findMany({
+      where: { userId },
+      select: { invitedBy: { select: { username: true } }, org: true },
+    });
+    return res.status(200).json(invites);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const respondToInvite = async (req, res) => {
+  const userId = req.user.id;
+  const { response, orgId } = req.body;
+  if (!userId) return res.status(500).json({ error: "Internal server error" });
+  if (!response || !orgId)
+    return res.status(400).json({ error: "Missing required fields" });
+  if (response != 0 && response != 1)
+    return res.status(400).json({ error: "Invalid response" });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!user) return res.status(404).json({ error: "Could not find user" });
+    const invite = await prisma.invite.findUnique({
+      where: { userId_orgId: { userId: userId, orgId: orgId } },
+      select: { orgId: true },
+    });
+
+    if (!invite)
+      return res
+        .status(404)
+        .json({ error: "Could not find an invite from this organization" });
+
+    // if user rejects
+    if (response == 0) {
+      await prisma.invite.delete({
+        where: {
+          userId_orgId: {
+            userId: userId,
+            orgId: orgId,
+          },
+        },
+      });
+      return res.status(204).json({ message: "Request has been rejected" });
+    }
+
+    //if user accepts
+    const result = await prisma.$transaction(async (tx) => {
+      const role = await tx.role.findFirst({
+        where: { AND: [{ orgId: orgId }, { name: "Member" }] },
+        select: { id: true },
+      });
+
+      if (!role) {
+        return res.status(500).json({ error: "Internal server error" });
+      }
+
+      const orgUser = await tx.orgUsers.create({
+        data: {
+          userId: userId,
+          orgId: orgId,
+          roleId: role.id,
+        },
+      });
+
+      await tx.invite.delete({
+        where: {
+          userId_orgId: {
+            userId: userId,
+            orgId: orgId,
+          },
+        },
+      });
+      return { role, orgUser };
+    });
+    return res.status(201).json({
+      message: "Joined an organization successfully",
+      role: result.role,
+      orgUser: result.orgUser,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createUser,
   getAllUsers,
   getUserOrgsAndTeams,
+  getUserInvites,
+  respondToInvite,
 };
