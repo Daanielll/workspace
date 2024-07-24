@@ -4,6 +4,7 @@ import plus_icon from "../../assets/plus_icon.svg";
 import { GlobeIcon } from "../../assets/GlobeIcon";
 import { SettingsIcon } from "../../assets/SettingsIcon";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 // team interface
 interface Team {
   id: number;
@@ -79,10 +80,13 @@ export function Organizations({ handleOpenForm }: Props) {
                         {team.name}
                       </button>
                     ))}
-                    <button className="text-washed-blue-700 text-sm flex gap-1 relative rounded-edge hover:text-washed-blue-800 items-center duration-150">
+                    <Link
+                      to={`/organization/${org.id}`}
+                      className="text-washed-blue-700 text-sm flex gap-1 relative rounded-edge hover:text-washed-blue-800 items-center duration-150"
+                    >
                       <SettingsIcon />
                       Organization Settings
-                    </button>
+                    </Link>
                   </motion.div>
                 )}
               </AnimatePresence>

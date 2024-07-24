@@ -52,6 +52,33 @@ export function useInviteResponse() {
   return mutateAsync;
 }
 
+export function useInviteUser(orgId: number) {
+  const { mutateAsync } = useMutation({
+    mutationFn: async (userId: number | undefined) => {
+      if (!userId || userId <= 0) return;
+      const response = await axios.post(
+        `http://localhost:3000/orgs/invite/${orgId}`,
+        { userId },
+        { withCredentials: true }
+      );
+
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("Invitation sent to user", { richColors: true });
+    },
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        return toast.error(
+          error.response?.data.error || "An unknown error has occurred",
+          { richColors: true }
+        );
+      }
+    },
+  });
+  return mutateAsync;
+}
+
 export default {
   useInviteResponse,
   useOrgsInvite,

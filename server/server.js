@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+require('dotenv').config();
+
 
 // JSON
 app.use(express.json());
@@ -21,4 +23,4 @@ app.use("/orgs", require("./routes/orgRoutes"));
 app.use("/users", require("./routes/userRoutes"));
 app.use("/teams", require("./routes/teamRoutes"));
 
-app.listen(3000, () => console.log("Server running on port 3000"));
+app.listen(process.env.PORT, () => console.log("Server running on port ", process.env.PORT));

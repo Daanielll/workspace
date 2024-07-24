@@ -155,10 +155,73 @@ const respondToInvite = async (req, res) => {
   }
 };
 
+const searchForUser = async (req, res) => {
+  const { query } = req.query;
+  const id = Number(req.query.id);
+  if (!query && !id) {
+    return res.status(200).json([]);
+  }
+  try {
+    if (!id) {
+      const lowerCaseQuery = query.toLowerCase();
+      const users = await prisma.user.findMany({
+        where: {
+          OR: [
+            { email: { contains: lowerCaseQuery, mode: "insensitive" } },
+            { username: { contains: lowerCaseQuery, mode: "insensitive" } },
+          ],
+        },
+        take: 6,
+        select: {
+          password: false,
+          email: true,
+          username: true,
+          id: true,
+          color: true,
+          displayPreference: true,
+        },
+      });
+      res.status(200).json(users);
+    } else {
+      const user = await prisma.user.findUnique({
+        where: { id: id },
+        select: {
+          password: false,
+          email: true,
+          username: true,
+          id: true,
+          color: true,
+          displayPreference: true,
+        },
+      });
+      res.status(200).json(user);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// const searchForId = async (req, res) => {
+//   const { id } = req.query;
+//   if (!id) {
+//     return res.status(400).json({ error: "Query is required" });
+//   }
+//   try {
+//     const user = await prisma.user.findUnique({
+//       where: { id: id },
+//     });
+//     res.status(200).json(user);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 module.exports = {
   createUser,
   getAllUsers,
   getUserOrgsAndTeams,
   getUserInvites,
   respondToInvite,
+  searchForUser,
 };

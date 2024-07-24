@@ -6,6 +6,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Login from "./components/login/Login.js";
 import ConditionalRender from "./components/ConditionalRender.js";
 import { UserContextProvider } from "./context/userContext.js";
+import { OrgSettings } from "./components/orgSettings/OrgSettings.js";
 
 const queryClient = new QueryClient();
 
@@ -14,7 +15,12 @@ const router = createBrowserRouter([
     path: "/",
     element: <ConditionalRender />,
     errorElement: <h1>Not Found!</h1>,
-    children: [],
+    children: [
+      {
+        path: "/organization/:orgId",
+        element: <OrgSettings />,
+      },
+    ],
   },
   {
     path: "/login",

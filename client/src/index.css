@@ -27,7 +27,7 @@
   border-left: 2px solid #121416;
 }
 body {
-  @apply bg-dark;
+  @apply bg-dark text-washed-blue;
 }
 
 /* Style the scrollbar */
@@ -52,4 +52,7 @@ body {
 /* Handle on hover */
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #777;
+}
+.search-input {
+  @apply bg-dark-buttons p-2 px-3 outline-none border border-primary-grey;
 }

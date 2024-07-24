@@ -19,5 +19,5 @@ router
   .route("/invites")
   .get(authToken, userController.getUserInvites)
   .post(authToken, userController.respondToInvite);
-
+router.route("/search").get(userController.searchForUser);
 module.exports = router;

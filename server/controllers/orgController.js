@@ -2,6 +2,25 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
+const checkIfUserIsAdmin = async (userId, orgId) => {
+  try {
+    const adminRole = await prisma.orgUsers.findFirst({
+      where: {
+        userId: userId,
+        orgId: orgId,
+        role: {
+          name: "Admin",
+        },
+      },
+    });
+
+    // If an admin role is found, return true
+    return !!adminRole;
+  } catch (error) {
+    console.error("Error checking admin role:", error);
+    throw new Error("Internal server error");
+  }
+};
 const createOrg = async (req, res) => {
   const userId = req.user.id;
   const { orgName } = req.body;
@@ -224,9 +243,85 @@ const createOrgInvite = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+const editOrgName = async (req, res) => {
+  const userId = req.user.id;
+  const orgId = Number(req.params.orgId);
+  const { newOrgName } = req.body;
+  if (!userId) return res.status(500).json({ error: "Internal server error" });
+  if (!orgId || !newOrgName)
+    return res.status(400).json({
+      error: "Missing required fields",
+      org: Number(orgId),
+      name: newOrgName,
+    });
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const org = await prisma.org.findUnique({ where: { id: orgId } });
+    if (!orgId)
+      return res
+        .status(404)
+        .json({ error: "Could not find the specified organization" });
+
+    const isAdmin = checkIfUserIsAdmin(userId, orgId);
+    if (!isAdmin)
+      return res
+        .status(403)
+        .json({ error: "Admin role is required for this operation" });
+
+    const updatedOrg = await prisma.org.update({
+      where: { id: orgId },
+      data: {
+        name: newOrgName,
+      },
+    });
+
+    res.status(200).json({ message: "Organization was updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getOrgDetails = async (req, res) => {
+  const userId = req.user.id;
+  const orgId = Number(req.params.orgId);
+  if (!userId) return res.status(500).json({ error: "Internal server error" });
+  if (!orgId)
+    return res
+      .status(400)
+      .json({ error: "Missing required fields", org: Number(orgId) });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    const org = await prisma.org.findUnique({
+      where: { id: orgId },
+      select: { id: true, name: true },
+    });
+    if (!orgId)
+      return res
+        .status(404)
+        .json({ error: "Could not find the specified organization" });
+    res.status(200).json({ org });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 module.exports = {
   createOrg,
   getUserOrgs,
   createOrgRequest,
   createOrgInvite,
+  editOrgName,
+  getOrgDetails,
 };

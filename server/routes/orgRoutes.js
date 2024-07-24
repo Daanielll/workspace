@@ -11,6 +11,10 @@ router
   .get(authToken, getUserOrgsAndTeams);
 router.route("/request").post(authToken, orgController.createOrgRequest);
 router.route("/invite/:orgId").post(authToken, orgController.createOrgInvite);
-router.route("/:orgId").post(authToken, teamController.createTeam);
+router
+  .route("/:orgId")
+  .post(authToken, teamController.createTeam)
+  .patch(authToken, orgController.editOrgName)
+  .get(authToken, orgController.getOrgDetails);
 
 module.exports = router;

@@ -32,7 +32,7 @@ export function NewOrgForm({ handleClose }: Props) {
           stiffness: 260,
           damping: 20,
         }}
-        className="w-[clamp(500px,33%,800px)] flex flex-col text-washed-blue p-4 gap-4 bg-lighter-dark border-2 border-primary-grey border-opacity-20 rounded-lg absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 overflow-hidden"
+        className="w-[clamp(500px,33%,800px)] flex flex-col text-washed-blue p-4 gap-4 bg-lighter-dark border-2 border-dark-accent rounded-lg absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <h1 className="text-lg font-semibold flex justify-between items-center">
@@ -63,7 +63,7 @@ export function NewOrgForm({ handleClose }: Props) {
               name="orgName"
               id=""
               placeholder="Enter organization name..."
-              className="bg-primary-grey bg-opacity-20 p-2 px-3 rounded-md outline-none"
+              className="bg-dark-accent p-2 px-3 rounded-md outline-none"
             />
           </div>
           <button

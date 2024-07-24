@@ -9,6 +9,8 @@ export default {
         "washed-blue-800": "#73777F",
         "washed-blue-900": "#585B61",
         dark: "#101112",
+        "dark-accent": "#23262A",
+        "dark-buttons": "#17191b",
         "lighter-dark": "#131416",
         "primary-grey": "#646E78",
         "primary-grey-700": "#474E55",
