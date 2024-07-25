@@ -1,26 +1,28 @@
 const { PrismaClient } = require("@prisma/client");
+const CheckIfUserIsAdmin = require("../middleware/CheckIfUserIsAdmin");
 
 const prisma = new PrismaClient();
 
-const checkIfUserIsAdmin = async (userId, orgId) => {
-  try {
-    const adminRole = await prisma.orgUsers.findFirst({
-      where: {
-        userId: userId,
-        orgId: orgId,
-        role: {
-          name: "Admin",
-        },
-      },
-    });
+// const checkIfUserIsAdmin = async (userId, orgId) => {
+//   try {
+//     const adminRole = await prisma.orgUsers.findFirst({
+//       where: {
+//         userId: userId,
+//         orgId: orgId,
+//         role: {
+//           name: "Admin",
+//         },
+//       },
+//     });
 
-    // If an admin role is found, return true
-    return !!adminRole;
-  } catch (error) {
-    console.error("Error checking admin role:", error);
-    throw new Error("Internal server error");
-  }
-};
+//     // If an admin role is found, return true
+//     return !!adminRole;
+//   } catch (error) {
+//     console.error("Error checking admin role:", error);
+//     throw new Error("Internal server error");
+//   }
+// };
+
 const createOrg = async (req, res) => {
   const userId = req.user.id;
   const { orgName } = req.body;
@@ -264,12 +266,12 @@ const editOrgName = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const org = await prisma.org.findUnique({ where: { id: orgId } });
-    if (!orgId)
+    if (!org)
       return res
         .status(404)
         .json({ error: "Could not find the specified organization" });
 
-    const isAdmin = checkIfUserIsAdmin(userId, orgId);
+    const isAdmin = CheckIfUserIsAdmin(userId, orgId);
     if (!isAdmin)
       return res
         .status(403)

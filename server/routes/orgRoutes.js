@@ -13,8 +13,10 @@ router.route("/request").post(authToken, orgController.createOrgRequest);
 router.route("/invite/:orgId").post(authToken, orgController.createOrgInvite);
 router
   .route("/:orgId")
-  .post(authToken, teamController.createTeam)
   .patch(authToken, orgController.editOrgName)
   .get(authToken, orgController.getOrgDetails);
-
+router
+  .route("/teams/:orgId")
+  .get(teamController.getOrgteams)
+  .post(authToken, teamController.createTeam);
 module.exports = router;

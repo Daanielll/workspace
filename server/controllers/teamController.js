@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const CheckIfUserIsAdmin = require("../middleware/CheckIfUserIsAdmin");
 
 const prisma = new PrismaClient();
 
@@ -25,9 +26,7 @@ const createTeam = async (req, res) => {
     // return error if user not found
     if (!userRoles) return res.status(404).json({ error: "user not found" });
     // check if user has admin role in any of their organizations
-    const isAdmin = userRoles.orgUsers.some(
-      (orgUser) => orgUser.role.name === "Admin"
-    );
+    const isAdmin = CheckIfUserIsAdmin(userId, orgId);
     // if not an admin, return error
     if (!isAdmin)
       return res
@@ -55,6 +54,19 @@ const createTeam = async (req, res) => {
   }
 };
 
+const getOrgteams = async (req, res) => {
+  const orgId = Number(req.params.orgId);
+  if (!orgId) return res.status(400).json({ error: "Invalid input data" });
+  try {
+    const teams = await prisma.team.findMany({ where: { orgId } });
+    res.status(200).json(teams);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createTeam,
+  getOrgteams,
 };
